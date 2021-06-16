@@ -3,17 +3,17 @@ const { basename, join, extname } = require('path')
 
 export const IGNORED_FOLDERS = [
   'node_modules',
+  'bower_components',
   '.git',
   'tmp',
   'temp',
   'public',
-  'bower_components',
-  '__tests__',
+  'dist',
 ]
 
 export type Options = {
   extensions?: string[]
-  ignoredFolders?: string[]
+  ignoredFolderNames?: string[]
   filter?: Function
   __count__?: number
   __depth__?: number
@@ -44,7 +44,7 @@ function walkRecur(fullPath, options: Options = {}, results = [], depth = 0) {
         return results
       }
 
-      if ((options.ignoredFolders || IGNORED_FOLDERS).includes(name)) {
+      if ((options.ignoredFolderNames || IGNORED_FOLDERS).includes(name)) {
         return results
       }
       // Continue recursion
