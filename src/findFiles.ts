@@ -1,32 +1,50 @@
 const { existsSync, statSync, readdirSync } = require('fs')
 const { basename, join, extname } = require('path')
+const { log, error } = require('./logger')
 
 export const IGNORED_FOLDERS = [
   'node_modules',
   'bower_components',
   '.git',
-  'tmp',
-  'temp',
   'public',
   'dist',
 ]
 
+export const TOO_MANY_FILES_ERROR = '⚠️ Too many files:'
+
 export type Options = {
+  detailedResults?: boolean
   extensions?: string[]
   ignoredFolderNames?: string[]
   filter?: Function
-  __count__?: number
-  __depth__?: number
-  detailedResults?: boolean
   maxDepth?: number
   maxSearchedFiles?: number
+  // Below: for internal use only
+  __count__?: number
+  __depth__?: number
 }
+
+export type FileDetails = {
+  path: string
+  name: string
+  nameWithoutExtension: string
+  extension: string
+  fullExtension: string
+  depth: number
+}
+
+export type FindFilesResult = string[] | FileDetails[]
 
 const MAX_SEARCHED_FILES = 5000
 
-function walkRecur(fullPath, options: Options = {}, results = [], depth = 0) {
+function walkRecur(
+  fullPath,
+  options: Options = {},
+  results: FindFilesResult = [],
+  depth = 0,
+): FindFilesResult {
   // if (options.debug) {
-  //   console.log({ depth, maxDepth: options.maxDepth })
+  //   log({ depth, maxDepth: options.maxDepth })
   // }
   if (options.maxDepth && depth > options.maxDepth) {
     return results
@@ -40,7 +58,7 @@ function walkRecur(fullPath, options: Options = {}, results = [], depth = 0) {
       if (
         options.__count__ >= (options.maxSearchedFiles || MAX_SEARCHED_FILES)
       ) {
-        console.log('⚠️ Too many files')
+        error(TOO_MANY_FILES_ERROR)
         return results
       }
 
@@ -66,7 +84,7 @@ function walkRecur(fullPath, options: Options = {}, results = [], depth = 0) {
       const index = name.indexOf('.')
       const nameWithoutExtension = name.substr(0, index)
       const fullExtension = name.substr(index + 1)
-      const fileDetails = {
+      const fileDetails: FileDetails = {
         path: fullPath,
         name,
         nameWithoutExtension,
@@ -79,28 +97,36 @@ function walkRecur(fullPath, options: Options = {}, results = [], depth = 0) {
         return results
       }
       if (options.detailedResults) {
-        results.push(fileDetails)
+        ;(results as FileDetails[]).push(fileDetails)
       } else {
         results.push(fullPath)
       }
     }
     return results
   } catch (ex) {
-    console.error(`walkRecur() error when processing: ${fullPath}`)
-    console.error(`${ex.message}`)
+    error(`walkRecur() error when processing: ${fullPath}`)
+    error(`${ex.message}`)
     return
   }
 }
 
-export function findFiles(path, options: Options = {}) {
-  const results = []
+export function findFiles(
+  path,
+  options: Options = {},
+): FileDetails[] | string[] {
+  let results
+  if (options.detailedResults) {
+    results = [] as FileDetails[]
+  } else {
+    results = [] as string[]
+  }
+
   options.__count__ = 0
   options.__depth__ = 0
   if (!existsSync(path)) {
-    console.log(`${path} does not exist`)
-    return []
+    throw new Error(`${path} does not exist`)
   }
   walkRecur(path, options, results)
-  console.log('🔍 Count of searched files:', options.__count__)
+  log('🔍 Count of searched files:', options.__count__)
   return results
 }

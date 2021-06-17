@@ -11,9 +11,11 @@
   "homepage": "https://github.com/matthizou/find-files#readme.md",
   "license": "MIT",
   "scripts": {
-    "compile": "tsc -p ./",
+    "build": "tsc -p ./",
+    "prebuild": "yarn clean",
+    "clean": "rm -rf dist",
     "watch": "tsc -watch -p ./",
-    "prepublish": "yarn test && yarn compile",
+    "prepublish": "yarn test && yarn build",
     "test": "jest",
     "publish-package": "yarn publish --access public"
   },

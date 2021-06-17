@@ -1,4 +1,7 @@
-import { findFiles } from '../findFiles'
+import { error } from '../logger'
+import { findFiles, TOO_MANY_FILES_ERROR } from '../findFiles'
+
+jest.mock('../logger')
 
 const PATH = 'src/__tests__/dummyFolder'
 describe('findFiles', () => {
@@ -92,6 +95,7 @@ describe('findFiles', () => {
       maxSearchedFiles: 2,
     })
 
+    expect(error).toHaveBeenCalledWith(TOO_MANY_FILES_ERROR)
     expect(results).toMatchInlineSnapshot(`
       Array [
         "src/__tests__/dummyFolder/folder1/folder11/folder111/test.md",
