@@ -5,6 +5,8 @@ A simple search utility that can be fine-tuned and which will recursively search
 ```js
 const findFiles = require('find-files-recur')
 
+// const { findFiles } from 'find-files-recur'  // Typescript
+
 const result = findFiles('./the/root/path/src', {
   extensions: ['js'],
   detailedResults: true,

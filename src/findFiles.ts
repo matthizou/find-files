@@ -127,6 +127,6 @@ export function findFiles(
     throw new Error(`${path} does not exist`)
   }
   walkRecur(path, options, results)
-  log('🔍 Count of searched files:', options.__count__)
+  // log('🔍 Count of searched files:', options.__count__)
   return results
 }
