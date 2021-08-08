@@ -1,6 +1,6 @@
 {
   "name": "find-files-recur",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "dist/findFiles.js",
   "types": "dist/findFiles.d.ts",
   "files": [
